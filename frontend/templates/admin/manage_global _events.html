@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-5 px-5">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <h1 class="display-3 fw-900 mb-0">GLOBAL<span class="text-orange" style="color:var(--primary-orange)!important;">EVENTS</span></h1>
+            <p class="text-secondary mb-0">System Audit: {{ events.count }} Total Events</p>
+        </div>
+        <div class="w-25">
+            <form method="GET">
+                <div class="input-group border border-secondary rounded-pill overflow-hidden">
+                    <input type="text" name="q" class="form-control bg-dark text-white border-0 px-4" placeholder="Search title or city...">
+                    <button class="btn btn-hero border-0 px-4" type="submit">SEARCH</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for event in events %}
+        <div class="col-12">
+            <div class="p-4 rounded-4 border border-secondary" style="background: rgba(255,255,255,0.03);">
+                <div class="row align-items-center">
+                    <div class="col-md-1 text-center border-end border-secondary">
+                        <h2 class="fw-900 mb-0">{{ event.date|date:"d" }}</h2>
+                        <span class="text-uppercase small opacity-50">{{ event.date|date:"M" }}</span>
+                    </div>
+                    <div class="col-md-3 ps-4">
+                        <h4 class="fw-bold mb-1">{{ event.title }}</h4>
+                        <span class="badge bg-dark border border-secondary text-secondary">{{ event.city }}</span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-secondary d-block">LOCATION</small>
+                        <p class="mb-0 small text-white-50">{{ event.venue_name }}</p>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-secondary d-block">HOSTED BY</small>
+                        <span class="text-white">@{{ event.owner.username }}</span>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <a href="{% url 'edit_event' event.id %}" class="btn btn-sm btn-outline-light rounded-pill px-3">Edit</a>
+                        <a href="{% url 'delete_event' event.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3 ms-2" onclick="return confirm('Delete this?')">Remove</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h3 class="text-secondary opacity-50">NO EVENTS FOUND</h3>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

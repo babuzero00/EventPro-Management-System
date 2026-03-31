@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* 1. FORCE FULL SCREEN - This removes gaps and handles the navbar space */
+    body { padding-top: 0 !important; }
+    .container-full { padding: 0 !important; max-width: 100% !important; }
+    
+    .auth-page-wrapper {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        background-color: var(--slate-bg);
+    }
+
+    /* 2. THE IMAGE SIDE (Matches your Login style) */
+    .auth-image-column {
+        flex: 0 0 58%; /* 58% width to match Login */
+        height: 100vh;
+        position: relative;
+        background-image: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .auth-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(1, 1, 3, 0.9), transparent);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 80px;
+    }
+
+    /* 3. THE FORM SIDE (Matches your Login style) */
+    .auth-form-column {
+        flex: 1;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .auth-glass-card {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 40px;
+        padding: 50px;
+        width: 100%;
+        max-width: 480px; /* Slightly wider for register fields */
+        box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    }
+
+    /* TYPOGRAPHY & INPUTS */
+    .auth-header { font-weight: 900; font-size: 2.2rem; letter-spacing: -2px; }
+    .text-cyan { color: var(--cyan-neon) !important; }
+    
+    .input-pro-box { position: relative; margin-bottom: 18px; }
+    .input-pro-box i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--cyan-neon); }
+    .input-pro-box input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 18px !important;
+        padding: 15px 15px 15px 55px !important;
+        color: white !important;
+        transition: 0.3s;
+    }
+
+    .input-pro-box input:focus {
+        border-color: var(--cyan-neon) !important;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+        outline: none;
+    }
+
+    .btn-auth-pro {
+        background: white !important; color: black !important; font-weight: 900;
+        text-transform: uppercase; padding: 18px; border-radius: 18px; width: 100%;
+        border: none; margin-top: 15px; transition: 0.4s;
+    }
+    .btn-auth-pro:hover { background: var(--cyan-neon) !important; transform: translateY(-5px); }
+
+    .glow-line { width: 80px; height: 4px; background: var(--cyan-neon); box-shadow: 0 0 20px var(--cyan-neon); margin-bottom: 25px; }
+    .x-small { font-size: 0.75rem; }
+
+    /* Hide image on mobile */
+    @media (max-width: 992px) {
+        .auth-image-column { display: none; }
+        .auth-form-column { flex: 0 0 100%; }
+    }
+</style>
+
+<div class="auth-page-wrapper">
+    <div class="auth-image-column">
+        <div class="auth-image-overlay">
+            <div class="glow-line"></div>
+            <h1 class="display-2 fw-900 text-white text-uppercase" style="letter-spacing: -5px;">JOIN_THE<br>ELITE_CORE.</h1>
+            <p class="text-white-50 uppercase fw-bold ls-widest mt-2" style="letter-spacing: 5px;">Host world-class experiences</p>
+        </div>
+    </div>
+
+    <div class="auth-form-column">
+        <div class="auth-glass-card">
+            <div class="mb-4">
+                <h2 class="auth-header">NEW_<span>IDENTITY</span></h2>
+                <p class="text-white-50 small fw-bold uppercase" style="letter-spacing: 2px;">Register for Global Access</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="alert alert-dark border-0 x-small text-white mb-4" style="background: rgba(255, 0, 0, 0.1); border-left: 3px solid #ff4444 !important;">
+                <span class="fw-bold">SYSTEM_ERROR:</span>
+                <ul class="mb-0 mt-1">
+                    {% for field in form %}{% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}{% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="POST" id="registerForm">
+                {% csrf_token %}
+                
+                <div class="input-pro-box">
+                    <i class="bi bi-at"></i>
+                    <input type="text" name="username" value="{{ form.username.value|default:'' }}" placeholder="USERNAME" required>
+                </div>
+
+                <div class="input-pro-box">
+                    <i class="bi bi-envelope-fill"></i>
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}" placeholder="EMAIL_ADDRESS" required>
+                </div>
+
+                <div class="input-pro-box">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <input type="password" name="password" id="pass1" placeholder="CREATE_PASSWORD" required>
+                </div>
+
+                <div class="input-pro-box">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <input type="password" name="confirm_password" id="pass2" placeholder="CONFIRM_PASSWORD" required>
+                </div>
+                
+                <div id="passwordError" class="text-danger x-small mb-3 d-none fw-bold text-uppercase">[ Passwords mismatch detected ]</div>
+
+                <button type="submit" class="btn-auth-pro">Initialize Profile</button>
+
+                <div class="text-center mt-4">
+                    <p class="text-white-50 small fw-bold">
+                        ALREADY_MEMBER? 
+                        <a href="{% url 'login' %}" class="text-cyan text-decoration-none ms-2">SIGN_IN_HERE</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const pass1 = document.getElementById('pass1');
+    const pass2 = document.getElementById('pass2');
+    const errorDiv = document.getElementById('passwordError');
+    const form = document.getElementById('registerForm');
+
+    form.addEventListener('submit', function(e) {
+        if (pass1.value !== pass2.value) {
+            e.preventDefault();
+            errorDiv.classList.remove('d-none');
+        }
+    });
+</script>
+{% endblock %}

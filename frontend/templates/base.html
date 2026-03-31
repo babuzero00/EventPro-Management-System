@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EventPro | Vision{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+    :root {
+        --cyan-neon: #00f2ff;
+        --purple-neon: #7000ff;
+        --slate-bg: #010103; 
+    }
+
+    /* --- FULL SCREEN CORE SETUP --- */
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--slate-bg) !important;
+        margin: 0;
+        padding-top: 100px; 
+        color: white !important;
+        min-height: 100vh;
+        width: 100vw;
+        overflow-x: hidden;
+    }
+
+    /* --- EDGE-TO-EDGE CONTAINERS --- */
+    .container-full { 
+        width: 100%; 
+        padding: 0 40px; 
+        max-width: 100%; 
+    }
+
+    /* --- FULL WIDTH NAVBAR --- */
+    .navbar-main {
+        background: rgba(1, 1, 3, 0.7) !important;
+        backdrop-filter: blur(30px) saturate(150%);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding: 15px 0;
+        z-index: 1100;
+        width: 100vw;
+        left: 0;
+        right: 0;
+    }
+
+    .navbar-brand { font-weight: 900; font-size: 1.8rem; letter-spacing: -1.5px; text-transform: uppercase; color: #ffffff !important; text-decoration: none; }
+    .navbar-brand span { color: var(--cyan-neon) !important; text-shadow: 0 0 15px rgba(0, 242, 255, 0.6); }
+
+    .nav-link {
+        font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+        color: rgba(255,255,255,0.6) !important;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    .nav-link:hover { color: var(--cyan-neon) !important; transform: translateY(-1px); }
+    
+    .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 15%;
+        width: 70%;
+        height: 2px;
+        background: var(--cyan-neon);
+        box-shadow: 0 0 10px var(--cyan-neon);
+    }
+
+    /* --- BUTTONS & INPUTS --- */
+    .btn-core {
+        background: white !important; color: black !important; padding: 10px 25px;
+        border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase;
+        text-decoration: none; transition: 0.4s;
+        border: 2px solid white !important;
+    }
+    .btn-core:hover { 
+        background: transparent !important; 
+        color: white !important; 
+        border-color: var(--cyan-neon) !important;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+    }
+
+    /* --- DASHBOARD HERO FULL SCREEN --- */
+    .hero-wrapper {
+        border-radius: 40px; 
+        overflow: hidden; 
+        border: 1px solid rgba(255,255,255,0.1);
+        position: relative; 
+        height: 70vh; 
+        width: 100%;
+        margin-bottom: 60px;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    }
+    .hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5); }
+    
+    /* --- BACKGROUND BLOBS --- */
+    .base-bg-blobs { 
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+        z-index: -1; pointer-events: none; overflow: hidden;
+    }
+    .blob { position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.2; animation: floatMove 25s infinite alternate ease-in-out; }
+    .b-1 { width: 80vw; height: 80vw; background: var(--cyan-neon); top: -20%; left: -10%; }
+    .b-2 { width: 90vw; height: 90vw; background: var(--purple-neon); bottom: -20%; right: -10%; animation-delay: -5s; }
+
+    @keyframes floatMove {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(5vw, 5vh) scale(1.1); }
+    }
+
+    .system-msg { animation: slideDown 0.5s ease-out; }
+    @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .logout-btn-signal {
+        background: transparent; border: none; color: rgba(255, 255, 255, 0.5);
+        font-family: monospace; font-size: 0.65rem; letter-spacing: 2px; transition: 0.3s; padding: 0 10px;
+    }
+    .logout-btn-signal:hover { color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 77, 77, 0.5); }
+    .logout-btn-signal .bracket { color: #00f2ff; font-weight: bold; }
+</style>
+
+<div class="base-bg-blobs">
+    <div class="blob b-1"></div>
+    <div class="blob b-2"></div>
+</div>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-main fixed-top">
+        <div class="container-full">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand" href="{% url 'discover' %}">EVENT<span>PRO</span></a>
+
+                <div class="d-flex align-items-center gap-4">
+                    <ul class="navbar-nav d-none d-lg-flex flex-row align-items-center gap-2">
+                        {% if user.is_authenticated and user.is_staff %}
+                            <li class="nav-item"><a class="nav-link px-3 {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link px-3 {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}" href="{% url 'manage_users' %}">Manage Users</a></li>
+                            <li class="nav-item"><a class="nav-link px-3 {% if request.resolver_match.url_name == 'manage_events' %}active{% endif %}" href="{% url 'manage_events' %}">Manage Events</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link px-3 {% if request.resolver_match.url_name == 'discover' %}active{% endif %}" href="{% url 'discover' %}">Explore</a></li>
+                            <li class="nav-item"><a class="nav-link px-3 {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link px-3" href="{% url 'manage_events' %}">Hosting</a></li>
+                            <li class="nav-item"><a class="nav-link px-3" href="{% url 'manage_requests' %}">Requests</a></li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-3">
+                        {% if user.is_authenticated %}
+                            {% if not user.is_staff %}
+                                <a href="{% url 'create_event' %}" class="btn-core">Create</a>
+                            {% endif %}
+    
+                            <form action="{% url 'logout' %}" method="post" class="d-inline m-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'login' %}">
+                                <button type="submit" class="logout-btn-signal">
+                                    <span class="bracket">[</span> LOGOUT <span class="bracket">]</span>
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="nav-link px-2">Login</a>
+                            <a href="{% url 'register' %}" class="btn-core">Join</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-full">
+        {% if messages %}
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    {% for message in messages %}
+                        <div class="alert alert-dark border-0 text-white small mb-4 system-msg" style="background: rgba(255,255,255,0.05); border-left: 4px solid var(--cyan-neon) !important; border-radius: 15px; backdrop-filter: blur(10px);">
+                            <span class="fw-bold" style="color: var(--cyan-neon);">SIGNAL_ID:</span> {{ message }}
+                            <button type="button" class="btn-close btn-close-white float-end" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if request.resolver_match.url_name == 'dashboard' and not user.is_staff %}
+        <div class="hero-wrapper">
+            <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1600&q=80" class="hero-img">
+            <div style="position: absolute; inset: 0; background: linear-gradient(to right, #010103 10%, transparent 60%);"></div>
+            <div style="position: absolute; top: 50%; left: 80px; transform: translateY(-50%); z-index: 10;">
+                <h1 class="display-1 fw-900 mb-2" style="letter-spacing: -6px; line-height: 0.9;">HOST YOUR<br><span class="text-outline" style="color: transparent; -webkit-text-stroke: 2px white;">VISION</span></h1>
+                <p class="text-white-50 fs-5 mb-5 uppercase" style="letter-spacing: 5px;">Secure the core of your next experience</p>
+                <a href="{% url 'create_event' %}" class="btn-core px-5 py-3">Initialize Hub</a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.system-msg');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 4000); 
+        });
+    </script>
+</body>
+</html> 

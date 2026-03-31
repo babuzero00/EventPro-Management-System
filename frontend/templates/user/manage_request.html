@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Guest Approvals | EventPro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-3 fw-900 mb-2 gradient-text">Guest Requests</h1>
+            <p class="fs-4 text-secondary-vibrant">Manage your community and approve new attendees.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for booking in requests %}
+        <div class="col-12">
+            <div class="huge-glass-card shadow-lg">
+                <div class="row align-items-center p-4">
+                    
+                    <div class="col-md-3 border-end-glass">
+                        <div class="d-flex align-items-center">
+                            <div class="huge-avatar grad-{{ forloop.counter0|divisibleby:2|yesno:'1,2' }}">
+                                {{ booking.user.username|slice:":1"|upper }}
+                            </div>
+                            <div class="ms-4">
+                                <h2 class="fw-bold text-white mb-0" style="font-size: 1.8rem;">{{ booking.user.username }}</h2>
+                                <span class="badge-lite-black mt-2">
+                                    <i class="bi bi-envelope-fill text-info me-2"></i>{{ booking.user.email }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 border-end-glass ps-md-5">
+                        <div class="text-uppercase small fw-bold text-info ls-2 mb-2">Target Event</div>
+                        <h3 class="fw-bold text-white mb-3" style="font-size: 1.6rem;">{{ booking.event.title }}</h3>
+                        <div class="badge-lite-black">
+                            <i class="bi bi-geo-alt-fill text-warning me-2"></i>{{ booking.event.venue_name }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-center">
+                        {% if booking.status == 'approved' %}
+                            <div class="huge-status status-approved">Approved</div>
+                        {% elif booking.status == 'rejected' %}
+                            <div class="huge-status status-rejected">Declined</div>
+                        {% else %}
+                            <div class="huge-status status-pending pulse-neon">Pending</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-3 text-end">
+                        {% if booking.status == 'pending' %}
+                            <div class="d-flex justify-content-end gap-3">
+                                <a href="{% url 'update_booking_status' booking.id 'approve' %}" class="btn-action-huge btn-accept">
+                                    <i class="bi bi-check-circle-fill me-2"></i>Accept
+                                </a>
+                                <a href="{% url 'update_booking_status' booking.id 'reject' %}" class="btn-action-huge btn-reject">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            </div>
+                        {% elif booking.status == 'rejected' %}
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <a href="{% url 'update_booking_status' booking.id 'delete' %}" class="btn-action-huge btn-remove w-100 justify-content-center">
+                                    <i class="bi bi-trash3-fill me-2"></i>REMOVE_SIGNAL
+                                </a>
+                                <a href="{% url 'update_booking_status' booking.id 'reset' %}" class="btn-undo">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Undo Decision
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <div class="text-white-50 fw-bold small ls-1">
+                                    <i class="bi bi-check2-all me-1"></i>PROCESSED
+                                </div>
+                                <a href="{% url 'update_booking_status' booking.id 'reset' %}" class="btn-undo">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Undo Decision
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-person-x display-1 text-white-50"></i>
+            <h2 class="text-white-50 mt-3">No guest signals detected.</h2>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* 1. TYPOGRAPHY */
+    .fw-900 { font-weight: 900; }
+    .ls-2 { letter-spacing: 2px; }
+    .gradient-text {
+        background: linear-gradient(90deg, #ffffff, #38bdf8, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .text-secondary-vibrant { color: #94a3b8; }
+
+    /* 2. HUGE GLASS CARD */
+    .huge-glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 35px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .huge-glass-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(56, 189, 248, 0.5);
+    }
+    .border-end-glass { border-right: 1px solid rgba(255, 255, 255, 0.05); }
+
+    /* 3. AVATAR */
+    .huge-avatar {
+        width: 80px; height: 80px; border-radius: 25px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; font-weight: 900; color: white;
+    }
+    .grad-1 { background: linear-gradient(135deg, #f05537, #ff8a05); }
+    .grad-2 { background: linear-gradient(135deg, #6366f1, #a855f7); }
+
+    .badge-lite-black {
+        background: rgba(0, 0, 0, 0.5); color: #e2e8f0;
+        padding: 8px 16px; border-radius: 12px; font-weight: 600;
+        display: inline-block; border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 4. STATUS */
+    .huge-status { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; padding: 10px 20px; border-radius: 100px; letter-spacing: 1px; }
+    .status-pending { background: rgba(255, 193, 7, 0.1); color: #ffca28; border: 1px solid #ffca28; }
+    .status-approved { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid #34d399; }
+    .status-rejected { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid #f87171; }
+
+    /* 5. BUTTONS */
+    .btn-action-huge {
+        padding: 12px 24px; border-radius: 18px; font-weight: 800; font-size: 1rem;
+        text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center;
+    }
+    .btn-accept { background: #38bdf8; color: #000 !important; }
+    .btn-reject { background: rgba(255, 255, 255, 0.05); color: #f87171 !important; border: 1px solid rgba(248, 113, 113, 0.3); }
+    .btn-remove { background: #f87171; color: #000 !important; } /* Red solid for removal */
+    
+    .btn-undo {
+        font-size: 0.7rem; font-weight: 800; color: #94a3b8 !important; text-decoration: none;
+        text-transform: uppercase; padding: 5px 12px; background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+    }
+
+    @keyframes pulse-neon {
+        0% { box-shadow: 0 0 0 0 rgba(255, 202, 40, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 202, 40, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 202, 40, 0); }
+    }
+    .pulse-neon { animation: pulse-neon 2s infinite; }
+</style>
+{% endblock %}

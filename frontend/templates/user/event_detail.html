@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title|upper }}{% endblock %}
+
+{% block content %}
+<div class="gravity-bg">
+    <div class="light-blob blob-cyan"></div>
+    <div class="light-blob blob-purple"></div>
+</div>
+
+<style>
+    /* Layout & Hero */
+    .event-master-wrapper { position: relative; z-index: 10; margin-top: -110px; }
+    .hero-visual {
+        height: 55vh; width: 100%;
+        background: url('{% if event.image %}{{ event.image.url }}{% else %}https://images.unsplash.com/photo-1514525253361-bee8718a7439{% endif %}') center/cover no-repeat;
+        position: relative;
+    }
+    .hero-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #010103 10%, transparent 100%); }
+    
+    /* Glassmorphism Cards */
+    .glass-details {
+        background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px; padding: 45px;
+    }
+    .sidebar-booking { border-radius: 40px; padding: 40px; position: sticky; top: 120px; text-align: center; }
+    
+    /* Dynamic Buttons */
+    .btn-status { 
+        width: 100%; padding: 20px; border-radius: 100px; border: none; 
+        font-weight: 900; letter-spacing: 2px; text-transform: uppercase; 
+        transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1); text-decoration: none; display: inline-block;
+    }
+    .btn-cancel-trigger {
+        background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c;
+        width: 100%; padding: 12px; border-radius: 100px; font-weight: 800;
+        font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+        margin-top: 15px; transition: 0.3s;
+    }
+    .btn-cancel-trigger:hover { background: #e74c3c; color: white; box-shadow: 0 0 20px rgba(231, 76, 60, 0.4); }
+    
+    /* Status Theme Colors */
+    .state-available { background: #00f2ff; color: #010103; box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3); }
+    .state-available:hover { transform: scale(1.02); background: #ffffff; }
+    .state-pending { background: #f39c12; color: #010103; cursor: default; }
+    .state-approved { background: #00f2ff; color: #010103; box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
+    .state-rejected { background: #e74c3c; color: white; cursor: not-allowed; }
+    .state-owner { background: #ffffff; color: #010103; }
+    .state-expired { background: rgba(255, 50, 50, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3); cursor: not-allowed; }
+
+    /* Typography & Alerts */
+    .label-mini { font-family: monospace; font-size: 0.65rem; letter-spacing: 2px; opacity: 0.6; display: block; margin-bottom: 5px; }
+    .local-alert {
+        background: rgba(255, 255, 255, 0.05); border-left: 4px solid #00f2ff;
+        backdrop-filter: blur(10px); border-radius: 15px; color: white;
+        padding: 15px; margin-bottom: 25px; font-size: 0.85rem;
+    }
+
+    /* Background Animation */
+    .gravity-bg { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; background: #010103; }
+    .light-blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; animation: float 15s infinite alternate; }
+    .blob-cyan { width: 400px; height: 400px; background: #00f2ff; top: -100px; left: -100px; }
+    .blob-purple { width: 500px; height: 500px; background: #7000ff; bottom: -100px; right: -100px; }
+    @keyframes float { from { transform: translate(0,0); } to { transform: translate(100px, 100px); } }
+    .ls-tighter { letter-spacing: -4px; }
+    .ls-widest { letter-spacing: 4px; }
+    .text-cyan { color: #00f2ff !important; }
+    .fw-900 { font-weight: 900; }
+</style>
+
+<div class="event-master-wrapper">
+    <div class="hero-visual">
+        <div class="container h-100 d-flex align-items-end pb-4">
+            <div style="z-index: 5;">
+                <h1 class="display-2 fw-900 text-white ls-tighter mb-0">{{ event.title|upper }}</h1>
+                <p class="text-white-50 fs-5 ls-widest uppercase">
+                    <i class="bi bi-geo-alt-fill text-cyan me-2"></i>{{ event.venue_name }}
+                    {% if event.date < now %}
+                        <span class="ms-3 badge bg-danger-subtle text-danger border border-danger-subtle x-small">ARCHIVED_NODE</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5 mt-4">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="local-alert alert alert-dismissible fade show" role="alert">
+                    <span class="fw-bold text-cyan">SYSTEM_SIGNAL:</span> {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <div class="glass-details">
+                    <div class="row g-4 mb-5 text-center text-md-start">
+                        <div class="col-md-4">
+                            <span class="label-mini text-cyan">DATE</span>
+                            <h5 class="text-white fw-bold">{{ event.date|date:"D, d M Y" }}</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="label-mini text-cyan">TIME</span>
+                            <h5 class="text-white fw-bold">{{ event.date|date:"H:i" }} HRS</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="label-mini text-cyan">HOST</span>
+                            <h5 class="text-white fw-bold">@{{ event.owner.username|upper }}</h5>
+                        </div>
+                    </div>
+
+                    <h4 class="text-white fw-900 mb-3">OVERVIEW</h4>
+                    <p class="text-white-50 fs-5 lh-base mb-5">{{ event.description }}</p>
+
+                    <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                        <span class="label-mini">EXACT_LOCATION</span>
+                        <p class="text-white mb-0 fs-5">{{ event.address }}</p>
+                        <p class="text-white-50 small mb-0">{{ event.city }}, {{ event.state }}, {{ event.country }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar-booking glass-details border-0" style="background: rgba(255,255,255,0.03);">
+                    <div class="mb-5">
+                        <span class="label-mini mb-3">TICKET_AVAILABILITY</span>
+                        <h3 class="text-white fw-900">{{ event.capacity }} TOTAL SLOTS</h3>
+                    </div>
+
+                    {% if event.date < now %}
+                        <div class="btn-status state-expired">
+                            <i class="bi bi-slash-circle me-2"></i> SIGNAL_EXPIRED
+                        </div>
+                        <p class="text-danger small mt-3 fw-bold ls-widest">REGISTRATION_CLOSED</p>
+
+                    {% elif event.owner == request.user %}
+                        <a href="{% url 'dashboard' %}" class="btn-status state-owner">
+                            <i class="bi bi-gear-fill me-2"></i> MANAGE
+                        </a>
+                        <p class="text-white-50 small mt-3 fw-bold ls-widest">OWNER_PROTOCOL</p>
+
+                    {% elif user_booking %}
+                        {% if user_booking.status == 'approved' %}
+                            <div class="btn-status state-approved">
+                                <i class="bi bi-check-circle-fill me-2"></i> BOOKED
+                            </div>
+                            <p class="text-cyan small mt-3 fw-bold ls-widest">SIGNAL_VERIFIED</p>
+
+                        {% elif user_booking.status == 'pending' %}
+                            <div class="btn-status state-pending">
+                                <i class="bi bi-hourglass-split me-2"></i> PENDING
+                            </div>
+                            <p class="text-warning small mt-3 fw-bold ls-widest">AWAITING_HOST</p>
+
+                        {% elif user_booking.status == 'rejected' %}
+                            <div class="btn-status state-rejected">
+                                <i class="bi bi-x-circle-fill me-2"></i> REJECTED
+                            </div>
+                            <p class="text-danger small mt-3 fw-bold ls-widest">ACCESS_DENIED</p>
+                        {% endif %}
+
+                        {% if user_booking.status != 'rejected' %}
+                            <form action="{% url 'cancel_booking' user_booking.id %}" method="post" onsubmit="return confirm('Abort request for {{ event.title }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-cancel-trigger">
+                                    <i class="bi bi-slash-circle me-1"></i> Cancel Booking
+                                </button>
+                            </form>
+                        {% endif %}
+
+                    {% else %}
+                        <a href="{% url 'book_event' event.id %}" class="btn-status state-available">
+                            BOOK NOW
+                        </a>
+                        <p class="text-white-50 small mt-3 fw-bold ls-widest">REQUEST_ACCESS</p>
+                    {% endif %}
+                    
+                    <div class="mt-5 pt-4 border-top border-white-10">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="x-small ls-widest text-white-20">SYSTEM_STATUS</span>
+                            <span class="pulse-ring-small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pulse-ring-small { 
+        width: 6px; height: 6px; background: {% if event.date < now %}#ff4d4d{% else %}#00f2ff{% endif %}; 
+        border-radius: 50%; box-shadow: 0 0 10px {% if event.date < now %}#ff4d4d{% else %}#00f2ff{% endif %};
+    }
+</style>
+
+<script>
+    setTimeout(function() {
+        let alert = document.querySelector('.local-alert');
+        if (alert) {
+            let bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }
+    }, 4000);
+</script>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if edit_mode %}Edit {{ event.title }}{% else %}Create Event{% endif %} | EventPro
+{% endblock %}
+
+{% block content %}
+<style>
+    .create-wrapper {
+        padding-top: 20px;
+        padding-bottom: 80px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        font-size: 3.5rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        letter-spacing: -3px;
+    }
+
+    .glass-form-card {
+        background: rgba(255, 255, 255, 0.02) !important;
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 40px !important;
+        padding: 60px;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Subtle glow behind the card */
+    .glass-form-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 242, 255, 0.03) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .form-label-pro {
+        color: var(--cyan-neon) !important;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        margin-bottom: 12px;
+        display: block;
+        letter-spacing: 2px;
+    }
+
+    /* Overriding form controls to match the Pro UI */
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border-radius: 16px !important;
+        padding: 15px 20px !important;
+        transition: 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--cyan-neon) !important;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.15) !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Current Image Preview Styling */
+    .current-image-preview {
+        width: 100%;
+        max-height: 250px;
+        object-fit: cover;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 20px;
+    }
+
+    .btn-publish-pro {
+        background: white !important;
+        color: black !important;
+        font-weight: 900;
+        text-transform: uppercase;
+        padding: 20px;
+        border-radius: 18px;
+        border: none;
+        width: 100%;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        transition: 0.4s;
+        margin-top: 20px;
+    }
+
+    .btn-publish-pro:hover {
+        background: var(--cyan-neon) !important;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.3);
+    }
+
+    .cancel-link {
+        color: rgba(255,255,255,0.4) !important;
+        text-decoration: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+    }
+    
+    .cancel-link:hover {
+        color: white !important;
+    }
+
+    .text-cyan-neon {
+        color: var(--cyan-neon) !important;
+    }
+</style>
+
+<div class="create-wrapper">
+    <div class="text-center mb-5">
+        <h1 class="page-header">
+            {% if edit_mode %}UPDATE <span class="text-cyan-neon">SIGNAL</span>{% else %}INITIALIZE <span class="text-cyan-neon">EVENT</span>{% endif %}
+        </h1>
+        <p class="text-white-50 text-uppercase fw-bold" style="letter-spacing: 3px; font-size: 0.75rem;">
+            {% if edit_mode %}Modifying existing data architecture{% else %}Publishing new event to the global registry{% endif %}
+        </p>
+    </div>
+
+    <div class="glass-form-card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+                {% for field in form %}
+                    {# Dynamic Grid Logic #}
+                    {% if field.name == 'description' or field.name == 'image' or field.name == 'address' %}
+                        <div class="col-12 mb-4">
+                    {% elif field.name == 'city' or field.name == 'state' or field.name == 'country' %}
+                        <div class="col-md-4 mb-4">
+                    {% else %}
+                        <div class="col-md-6 mb-4">
+                    {% endif %}
+                        
+                        <label class="form-label-pro" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        
+                        {% if field.name == 'image' and edit_mode and event.image %}
+                            <div class="mb-3">
+                                <p class="small text-white-50 mb-2 uppercase">Current Data Buffer:</p>
+                                <img src="{{ event.image.url }}" class="current-image-preview">
+                            </div>
+                        {% endif %}
+
+                        {{ field }}
+
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <small class="text-danger fw-bold mt-2 d-block" style="font-size: 0.65rem;">[ ERROR: {{ error }} ]</small>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn-publish-pro">
+                    {% if edit_mode %}
+                        SAVE_CHANGES_EXECUTED
+                    {% else %}
+                        START_BROADCAST
+                    {% endif %}
+                </button>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'manage_events' %}" class="cancel-link">
+                    <i class="bi bi-x-circle me-1"></i> Terminate Process
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Applying the Pro classes to the Django-rendered form fields
+    document.querySelectorAll('input, textarea, select').forEach(element => {
+        if (element.type !== 'file') {
+            element.classList.add('form-control');
+        } else {
+            // Special styling for the file upload button text
+            element.style.fontSize = "0.8rem";
+            element.style.color = "rgba(255,255,255,0.5)";
+        }
+    });
+</script>
+{% endblock %}

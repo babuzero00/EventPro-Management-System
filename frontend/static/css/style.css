@@ -1,0 +1,20 @@
+/* SHARED AUTH CORE */
+.auth-container { min-height: 100vh; background: #000; overflow-x: hidden; }
+.auth-image-side { height: 100vh; background-size: cover; background-position: center; position: relative; }
+.auth-image-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+.auth-form-card { width: 100%; max-width: 420px; }
+.fw-900 { font-weight: 900; }
+
+/* BLUE THEME (LOGIN) */
+.input-neon-box-blue { display: flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 15px; }
+.input-neon-box-blue i { color: #00d2ff; }
+.input-neon-box-blue input { background: transparent; border: none; color: white; width: 100%; margin-left: 10px; outline: none; }
+.btn-neon-auth-blue { background: #00d2ff; color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: 900; text-transform: uppercase; }
+.h-line-blue { width: 80px; height: 6px; background: #00d2ff; border-radius: 10px; }
+
+/* RED THEME (SIGNUP) */
+.input-neon-box-red { display: flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 15px; }
+.input-neon-box-red i { color: #ef4444; }
+.input-neon-box-red input { background: transparent; border: none; color: white; width: 100%; margin-left: 10px; outline: none; }
+.btn-neon-auth-red { background: #ef4444; color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 900; text-transform: uppercase; }
+.h-line-red { width: 80px; height: 6px; background: #ef4444; border-radius: 10px; }

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* --- 1. DASHBOARD HEADER --- */
+    .manage-header {
+        margin-bottom: 40px;
+        border-left: 5px solid var(--primary-orange);
+        padding-left: 20px;
+    }
+
+    /* --- 2. GLASS MANAGEMENT CARD --- */
+    .manage-card {
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 25px;
+        overflow: hidden;
+        transition: 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+    .manage-card:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-5px);
+    }
+
+    .event-thumb {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+
+    /* --- 3. CUSTOM ACTION BUTTONS --- */
+    .btn-edit {
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8 !important;
+        border: 1px solid #38bdf8;
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+
+    .btn-edit:hover {
+        background: #38bdf8;
+        color: #000 !important;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-delete-ui {
+        background: rgba(240, 85, 55, 0.1);
+        color: var(--primary-orange) !important;
+        border: 1px solid var(--primary-orange);
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-delete-ui:hover {
+        background: var(--primary-orange);
+        color: #fff !important;
+        box-shadow: 0 0 15px rgba(240, 85, 55, 0.5);
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 5px 12px;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="manage-header">
+        <h1 class="fw-bold text-uppercase m-0">Manage Your <span style="color: var(--primary-orange);">Events</span></h1>
+        <p class="text-muted">Edit, update, or remove your hosted experiences.</p>
+    </div>
+
+    <div class="row">
+        {% for event in events %}
+        <div class="col-12">
+            <div class="manage-card p-3">
+                <div class="d-flex align-items-center flex-wrap gap-4">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" class="event-thumb" alt="Banner">
+                    {% else %}
+                        <div class="event-thumb bg-dark d-flex align-items-center justify-content-center">
+                            <i class="bi bi-image text-secondary fs-2"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-3 mb-1">
+                            <h4 class="fw-bold m-0">{{ event.title }}</h4>
+                            <span class="status-badge">Active</span>
+                        </div>
+                        <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-1"></i> {{ event.location }}</p>
+                        <p class="text-white-50 small mb-0"><i class="bi bi-calendar3 me-1"></i> {{ event.date|date:"M d, Y | h:i A" }}</p>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'edit_event' event.id %}" class="btn-edit">
+                            <i class="bi bi-pencil-square me-1"></i> Edit
+                        </a>
+                        
+                        <button class="btn-delete-ui" data-bs-toggle="modal" data-bs-target="#deleteModal{{ event.id }}">
+                            <i class="bi bi-trash3 me-1"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal{{ event.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark border-secondary" style="border-radius: 20px;">
+                    <div class="modal-body text-center p-5">
+                        <i class="bi bi-exclamation-octagon text-danger display-1 mb-4"></i>
+                        <h3 class="text-white fw-bold">Are you sure?</h3>
+                        <p class="text-muted">Do you really want to delete <strong>{{ event.title }}</strong>? This action cannot be undone.</p>
+                        
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                            <form action="{% url 'delete_event' event.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger rounded-pill px-4">Confirm Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="opacity-25 mb-3">
+                <i class="bi bi-calendar-x" style="font-size: 5rem;"></i>
+            </div>
+            <h3 class="fw-bold text-white-50">You aren't hosting any events yet.</h3>
+            <a href="{% url 'create_event' %}" class="btn-hero mt-3">Host Your First Event</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

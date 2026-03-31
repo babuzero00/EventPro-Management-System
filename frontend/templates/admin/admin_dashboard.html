@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Intelligence Hub | EventPro{% endblock %}
+
+{% block content %}
+<style>
+    /* --- HUGE ANALYTICS WALL --- */
+    .massive-number {
+        font-size: 5rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #fff, var(--primary-orange));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .stat-box {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 40px;
+        padding: 50px;
+        transition: 0.4s;
+    }
+
+    .stat-box:hover {
+        border-color: var(--primary-orange);
+        background: rgba(240, 85, 55, 0.03);
+    }
+
+    .category-label {
+        letter-spacing: 4px;
+        color: var(--primary-orange);
+        font-weight: 800;
+    }
+
+    /* --- SECTION NAVIGATION --- */
+    .nav-card {
+        background: rgba(255,255,255,0.05);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        display: block;
+        transition: 0.3s;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .nav-card:hover {
+        background: var(--primary-orange);
+        transform: translateY(-5px);
+        color: white;
+    }
+</style>
+
+<div class="container-fluid py-5 px-5">
+    
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-1 fw-900 mb-0">CORE<span>OPS</span></h1>
+            <p class="fs-4 text-secondary">Real-time system monitoring</p>
+        </div>
+        <div class="col-md-6 d-flex gap-3 justify-content-md-end">
+            <a href="{% url 'manage_users' %}" class="nav-card">
+                <i class="bi bi-person-gear fs-2 d-block mb-2"></i>
+                <span>MANAGE USERS</span>
+            </a>
+            <a href="{% url 'manage_global_events' %}" class="nav-card">
+                <i class="bi bi-calendar-check fs-2 d-block mb-2"></i>
+                <span>GLOBAL EVENTS</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="stat-box h-100">
+                <span class="category-label">EVENT CREATORS</span>
+                <div class="massive-number">{{ creators_count }}</div>
+                <p class="text-secondary">Users who have actively hosted and published events on the platform.</p>
+                <hr class="opacity-10">
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Top Creators</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for creator in top_creators %}
+                            <span class="badge bg-dark border border-secondary p-2 px-3 rounded-pill">{{ creator.username }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="stat-box h-100">
+                <span class="category-label">EVENT BOOKERS</span>
+                <div class="massive-number text-info" style="background: linear-gradient(45deg, #fff, #0dcaf0); -webkit-background-clip: text;">{{ bookers_count }}</div>
+                <p class="text-secondary">Active participants who have reserved tickets for upcoming events.</p>
+                <hr class="opacity-10">
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Recent Bookers</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for booker in recent_bookers %}
+                            <span class="badge bg-dark border border-info p-2 px-3 rounded-pill">{{ booker.username }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-box py-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-900 mb-0">LIVE USERS</h3>
+            <span class="badge bg-success rounded-pill">ONLINE NOW</span>
+        </div>
+        <div class="row g-3">
+            {% for user in active_users_preview %}
+            <div class="col-md-3">
+                <div class="p-3 bg-black border border-secondary rounded-4 d-flex align-items-center gap-3">
+                    <div class="avatar-ring" style="width: 40px; height: 40px;">{{ user.username|first }}</div>
+                    <span class="fw-bold">{{ user.username }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

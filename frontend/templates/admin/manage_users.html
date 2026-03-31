@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-5 px-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-3 fw-900 text-uppercase">User<span>Registry</span></h1>
+            <p class="text-secondary">Managing {{ users.count }} total members in the ecosystem.</p>
+        </div>
+        <div class="w-25">
+            <form method="GET">
+                <input type="text" name="q" class="form-control bg-dark text-white rounded-pill border-secondary px-4" placeholder="Search by username or email...">
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive rounded-4 border border-secondary" style="background: rgba(255,255,255,0.02);">
+        <table class="table table-dark table-hover mb-0">
+            <thead class="bg-dark">
+                <tr>
+                    <th class="py-4 ps-4">USER</th>
+                    <th class="py-4">STATUS</th> <th class="py-4">ROLE</th>
+                    <th class="py-4">JOINED</th>
+                    <th class="py-4 text-end pe-4">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr style="vertical-align: middle; {% if not u.is_active %}opacity: 0.5;{% endif %}">
+                    <td class="py-3 ps-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle {% if u.is_active %}bg-orange{% else %}bg-secondary{% endif %} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 800;">
+                                {{ u.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <span class="fw-bold fs-5 d-block">{{ u.username }}</span>
+                                <small class="text-secondary">{{ u.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if u.is_active %}
+                            <span class="badge bg-success-subtle text-success border border-success px-3">ACTIVE</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger px-3">SUSPENDED</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if u.is_staff %}
+                        <span class="badge bg-primary text-uppercase">Administrator</span>
+                        {% else %}
+                        <span class="badge bg-dark border border-secondary text-secondary">Member</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-secondary small">{{ u.date_joined|date:"M d, Y" }}</td>
+                    <td class="text-end pe-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            {% if u != request.user %}
+                                <a href="{% url 'toggle_user_status' u.id %}" 
+                                   class="btn btn-sm {% if u.is_active %}btn-outline-danger{% else %}btn-success{% endif %} rounded-pill px-3">
+                                    {% if u.is_active %}Suspend{% else %}Activate{% endif %}
+                                </a>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-light rounded-pill px-3">View Details</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
